@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
+
+enum UserRole {
+    INTERN = "INTERN",
+    ENGINEER = "ENGINEER",
+    ADMIN = "ADMIN"
+}
 
 @Injectable()
 export class UsersService {
@@ -38,17 +44,23 @@ export class UsersService {
         },
     ]
 
-    findAll(role?: 'INTERN' | 'ENGINEER' | 'ADMIN') {
+
+
+    findAll(role?: string) {
         if (role) {
-            return this.users.filter(user => user.role === role)
+            if (!Object.values(UserRole).includes(role as UserRole)) {
+                throw new BadRequestException("Valid Role Required");  // ✅
+            }
+
+            return this.users.filter(user => user.role === role);
         }
 
-        return this.users
+        return this.users;
     }
 
     findOne(id: number) {
         const user = this.users.find(user => user.id === id)
-        if(!user) throw new NotFoundException('User Not Found');
+        if (!user) throw new NotFoundException('User Not Found');
         return user
     }
 
@@ -72,10 +84,10 @@ export class UsersService {
         return newUser;
     }
 
-    update(id: number , updateUserDto: UpdateUserDto){
+    update(id: number, updateUserDto: UpdateUserDto) {
         this.users = this.users.map(user => {
-            if(user.id === id){
-                return {...user, ...updateUserDto}
+            if (user.id === id) {
+                return { ...user, ...updateUserDto }
             }
             return user;
         })
@@ -83,7 +95,7 @@ export class UsersService {
         return this.findOne(id)
     }
 
-    delete(id: number){
+    delete(id: number) {
         const removedUser = this.findOne(id)
 
         this.users = this.users.filter(user => user.id !== id)
