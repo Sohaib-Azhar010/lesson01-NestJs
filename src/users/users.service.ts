@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -49,7 +51,7 @@ export class UsersService {
     }
 
 
-    create(user: { name: string, email: string, role: 'INTERN' | 'ENGINEER' | 'ADMIN' }) {
+    create(createUserDto: CreateUserDto) {
         // Step 1: Make a copy of the current users array and sort it by id in descending order
         const usersByHighestId = [...this.users].sort((a, b) => b.id - a.id);
 
@@ -58,7 +60,7 @@ export class UsersService {
             // Assign an id which is 1 greater than the highest existing user id
             id: usersByHighestId[0].id + 1,
             // Spread the provided user details (name, email, role)
-            ...user
+            ...createUserDto
         };
 
         // Step 3: Push the new user into the users array (saving it in memory)
@@ -68,10 +70,10 @@ export class UsersService {
         return newUser;
     }
 
-    update(id: number , updatedUser: { name?: string, email?: string, role?: 'INTERN' | 'ENGINEER' | 'ADMIN' }){
+    update(id: number , updateUserDto: UpdateUserDto){
         this.users = this.users.map(user => {
             if(user.id === id){
-                return {...user, ...updatedUser}
+                return {...user, ...updateUserDto}
             }
             return user;
         })
