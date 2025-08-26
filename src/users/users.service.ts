@@ -49,7 +49,7 @@ export class UsersService {
     findAll(role?: string) {
         if (role) {
             if (!Object.values(UserRole).includes(role as UserRole)) {
-                throw new BadRequestException("Valid Role Required");  // ✅
+                throw new NotFoundException("Valid Role Required");  // ✅
             }
 
             return this.users.filter(user => user.role === role);
